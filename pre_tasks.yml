@@ -1,0 +1,9 @@
+---
+
+- name: Assert that Ansible Core meets version requirements
+  assert:
+    that: |
+      ansible_version.full is version('2.16', '>=') and
+      ansible_version.full is version('2.17', '<')
+    fail_msg: "You must use version 2.16.* of Ansible Core."
+    success_msg: "You are using Ansible Core version {{ ansible_version.full }}."

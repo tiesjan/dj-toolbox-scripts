@@ -1,0 +1,16 @@
+[Unit]
+Description=Recorder Daemon
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+User={{ ansible_user_id }}
+Group={{ ansible_user_id }}
+WorkingDirectory={{ recordings_dir_path }}
+ExecStart="{{ ansible_user_dir }}/recorder.bash"
+KillMode=mixed
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

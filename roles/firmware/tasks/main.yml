@@ -1,0 +1,15 @@
+---
+
+- name: Ensure GPIO shutdown is properly configured
+  become: true
+  ansible.builtin.lineinfile:
+    path: /boot/firmware/config.txt
+    regexp: '^dtoverlay=gpio-shutdown'
+    line: "dtoverlay=gpio-shutdown,gpio_pin=3,gpio_pull=up,debounce=1333"
+
+- name: Ensure power LED is properly configured
+  become: true
+  ansible.builtin.lineinfile:
+    path: /boot/firmware/config.txt
+    regexp: '^dtparam=pwr_led_trigger='
+    line: "dtparam=pwr_led_trigger=none,pwr_led_activelow=off"

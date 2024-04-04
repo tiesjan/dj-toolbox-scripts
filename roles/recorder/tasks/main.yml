@@ -1,0 +1,27 @@
+---
+
+- name: Ensure directory for recordings exists
+  ansible.builtin.file:
+    path: "{{ recordings_dir_path }}"
+    state: directory
+    mode: "0755"
+
+- name: Upload recorder script
+  ansible.builtin.template:
+    src: recorder.bash.j2
+    dest: "{{ ansible_user_dir }}/recorder.bash"
+    mode: "0755"
+
+- name: Upload systemd configuration for recorder script
+  become: true
+  ansible.builtin.template:
+    src: "recorder.service.j2"
+    dest: "/etc/systemd/system/recorder.service"
+    mode: "0644"
+
+- name: Ensure systemd configuration for recorder script is enabled and started
+  become: true
+  ansible.builtin.service:
+    name: "recorder.service"
+    enabled: true
+    state: started

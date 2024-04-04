@@ -1,0 +1,8 @@
+---
+
+recorder:
+  arecord_pid_file: "/tmp/arecord.pid"
+  button_gpio_pin: 2
+  capture_device: "hw:CARD=Alpha,DEV=0"
+
+recordings_dir_path: "{{ ansible_user_dir }}/recordings"

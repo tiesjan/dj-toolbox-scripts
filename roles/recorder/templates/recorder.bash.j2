@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+
+# Enable Bash builtins
+enable sleep
+
+# Configuration variables
+ARECORD_PID_FILE="{{ recorder['arecord_pid_file'] }}"
+# shellcheck disable=SC1083,SC2037,SC2211,SC2288
+BUTTON_GPIO_PIN={{ recorder['button_gpio_pin'] }}
+CAPTURE_DEVICE="{{ recorder['capture_device'] }}"
+RECORDINGS_DIR="{{ recordings_dir_path }}"
+
+
+# State variables
+button_last_state=0
+recording_state="STOPPED"
+terminate_program=0
+
+
+function handle_termination {
+    if [ ${recording_state} = "RECORDING" ]
+    then
+        stop_recording
+    fi
+
+    terminate_program=1
+}
+
+trap handle_termination SIGINT SIGTERM
+
+
+function recording_job_running {
+    jobs %arecord 1>/dev/null 2>&1
+}
+
+
+function switch_led {
+    if [ "$1" = "on" ]
+    then
+        trigger="timer"
+    elif [ "$1" = "off" ]
+    then
+        trigger="none"
+    else
+        printf "Invalid LED state: %s\n" "$1" >&2
+        return
+    fi
+
+    echo ${trigger} > /sys/class/leds/PWR/trigger
+}
+
+
+function generate_recording_filename {
+    prefix="REC_$(date +%Y%m%d)_"
+
+    for (( serial_number = 1; serial_number <= 9999; serial_number++ ))
+    do
+        formatted_serial_number=$(printf '%04d' ${serial_number})
+        filename="${prefix}${formatted_serial_number}.flac"
+
+        if [ ! -f "${RECORDINGS_DIR}/${filename}" ]
+        then
+            printf "%s" "${filename}"
+            return
+        fi
+    done
+}
+
+
+function start_recording {
+    recording_state="STARTING"
+
+    arecord --quiet --format=S16_LE --channels=2 --rate=44100 --file-type=raw --device="${CAPTURE_DEVICE}" --process-id-file="${ARECORD_PID_FILE}" | \
+        flac --silent --best --bps=16 --endian=little --sign=signed --channels=2 --sample-rate=44100 --output-name="$1" - &
+
+    switch_led "on"
+
+    recording_state="RECORDING"
+}
+
+
+function stop_recording {
+    recording_state="STOPPING"
+
+    pkill -SIGINT --pidfile "${ARECORD_PID_FILE}"
+
+    switch_led "off"
+
+    recording_state="STOPPED"
+}
+
+
+while [ ${terminate_program} -ne 1 ]
+do
+    button_state=$(gpioget --active-low --bias=pull-up gpiochip0 "${BUTTON_GPIO_PIN}")
+
+    if [ "${button_state}" -ne "${button_last_state}" ]
+    then
+        button_last_state=${button_state}
+
+        if [ "${button_state}" -eq 1 ]
+        then
+            case ${recording_state} in
+                "STOPPED")
+                    start_recording "${RECORDINGS_DIR}/$(generate_recording_filename)"
+                    ;;
+
+                "RECORDING")
+                    stop_recording
+                    ;;
+
+                *)
+                    printf "Invalid recording state: %s\n" ${recording_state} >&2
+                    break
+                    ;;
+            esac
+        fi
+    fi
+
+    if [ ${recording_state} = "RECORDING" ] && ! recording_job_running
+    then
+        printf "Recording job unexpectedly stopped.\n" >&2
+
+        switch_led "off"
+        break
+    fi
+
+    sleep 0.1
+done

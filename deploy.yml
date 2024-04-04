@@ -1,0 +1,17 @@
+---
+
+- name: Provision and deploy DJ Toolbox
+  become_method: ansible.builtin.sudo
+  gather_facts: true
+  hosts: all
+
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+    - name: Run generic pre-tasks
+      ansible.builtin.include_tasks: pre_tasks.yml
+
+  roles:
+    - {role: firmware}
+    - {role: recorder}
