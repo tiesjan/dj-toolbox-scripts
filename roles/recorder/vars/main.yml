@@ -1,0 +1,5 @@
+---
+
+recorder_script_dependencies:
+  - bash-builtins
+  - flac

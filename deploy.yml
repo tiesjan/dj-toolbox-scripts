@@ -1,6 +1,6 @@
 ---
 
-- name: Provision and deploy DJ Toolbox
+- name: Deploy DJ Toolbox
   become_method: ansible.builtin.sudo
   gather_facts: true
   hosts: all

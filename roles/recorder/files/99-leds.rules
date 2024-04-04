@@ -1,0 +1,2 @@
+# Allow users of group `gpio` to LEDs subsystem
+SUBSYSTEM=="leds", ACTION=="add", RUN+="/bin/chgrp -R gpio /sys%p", RUN+="/bin/chmod -R g=u /sys%p"

@@ -1,12 +1,27 @@
 ---
 
+- name: Ensure `gpio` group has permissions to LEDs subsystem
+  become: true
+  ansible.builtin.copy:
+    src: "99-leds.rules"
+    dest: "/etc/udev/rules.d/99-leds.rules"
+    mode: "0644"
+
+- name: Ensure recorder script dependencies are installed
+  become: true
+  ansible.builtin.apt:
+    name: "{{ recorder_script_dependencies }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 86400
+
 - name: Ensure directory for recordings exists
   ansible.builtin.file:
     path: "{{ recordings_dir_path }}"
     state: directory
     mode: "0755"
 
-- name: Upload recorder script
+- name: Upload recorder script as executable file
   ansible.builtin.template:
     src: recorder.bash.j2
     dest: "{{ ansible_user_dir }}/recorder.bash"
