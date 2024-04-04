@@ -1,0 +1,21 @@
+---
+
+name: YAML Lint
+
+on:  # yamllint disable-line rule:truthy
+  - pull_request
+  - push
+
+jobs:
+  Lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v4
+
+      - name: Ensure yamllint is installed
+        run: pipx install yamllint
+
+      - name: Run yamllint
+        run: yamllint ./

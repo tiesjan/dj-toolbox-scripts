@@ -1,0 +1,23 @@
+---
+
+name: Ansible Lint
+
+on:  # yamllint disable-line rule:truthy
+  - pull_request
+  - push
+
+jobs:
+  Lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v4
+
+      - name: Ensure the correct Ansible version is installed
+        run: |
+          pipx uninstall ansible-core
+          pipx install --include-deps ansible==9.*
+
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@v6
