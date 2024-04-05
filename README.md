@@ -6,6 +6,7 @@ GPIO pins.
 
 ### Features
 - Recording mixes to FLAC files
+- SFTP access to recorded mixes
 - Graceful shutdown of Raspberry Pi
 
 ### Bootstrapping
@@ -45,3 +46,6 @@ $ ssh raspberrypi.local
 
 This again assumes your computer supports multicast DNS and the Raspberry Pi
 can be reached on its default hostname.
+
+### SFTP access
+Recordings can be accessed by the created user over SFTP with port 2222.

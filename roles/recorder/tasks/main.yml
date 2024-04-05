@@ -16,9 +16,12 @@
     cache_valid_time: 86400
 
 - name: Ensure directory for recordings exists
+  become: true
   ansible.builtin.file:
     path: "{{ recordings_dir_path }}"
     state: directory
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
     mode: "0755"
 
 - name: Upload recorder script as executable file

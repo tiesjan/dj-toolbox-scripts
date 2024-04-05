@@ -1,0 +1,50 @@
+---
+
+- name: Ensure SFTP root directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ sftp_root_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Configure SSH server
+  become: true
+  ansible.builtin.lineinfile:
+    path: "/etc/ssh/sshd_config"
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+    insertbefore: BOF
+  loop:
+    - regexp: '^#?AcceptEnv'
+      line: '#AcceptEnv LANG LC_*'
+    - regexp: '^#?DebianBanner'
+      line: 'DebianBanner no'
+    - regexp: '^#?PermitRootLogin'
+      line: 'PermitRootLogin no'
+    - regexp: '^#Port 22$'
+      line: 'Port 22'
+  loop_control:
+    label: "{{ item.line }}"
+  notify:
+    - reload ssh
+
+- name: Enable SFTP server for SFTP user
+  become: true
+  ansible.builtin.blockinfile:
+    path: /etc/ssh/sshd_config
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - SFTP"
+    append_newline: true
+    prepend_newline: true
+    insertafter: EOF
+    block: |
+      Port 2222
+      Match User {{ ansible_user_id }} LocalPort 2222
+        ChrootDirectory {{ sftp_root_path }}
+        ForceCommand internal-sftp
+  notify:
+    - reload ssh
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
