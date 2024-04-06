@@ -30,7 +30,7 @@
   notify:
     - reload ssh
 
-- name: Enable SFTP server for SFTP user
+- name: Enable SFTP server
   become: true
   ansible.builtin.blockinfile:
     path: /etc/ssh/sshd_config

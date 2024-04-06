@@ -90,6 +90,10 @@ function stop_recording {
 }
 
 
+# Start with LED turned off
+switch_led "off"
+
+
 while [ ${terminate_program} -ne 1 ]
 do
     button_state=$(gpioget --active-low --bias=pull-up gpiochip0 "${BUTTON_GPIO_PIN}")

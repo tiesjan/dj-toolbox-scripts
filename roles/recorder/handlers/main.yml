@@ -1,0 +1,8 @@
+---
+
+- name: Restart recorder script
+  become: true
+  ansible.builtin.service:
+    name: recorder
+    state: restarted
+  listen: restart recorder

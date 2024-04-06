@@ -29,6 +29,8 @@
     src: recorder.bash.j2
     dest: "{{ ansible_user_dir }}/recorder.bash"
     mode: "0755"
+  notify:
+    - restart recorder
 
 - name: Upload systemd configuration for recorder script
   become: true
