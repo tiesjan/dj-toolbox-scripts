@@ -1,0 +1,29 @@
+{
+  "Dhcp4": {
+    "valid-lifetime": 86400,
+    "calculate-tee-times": true,
+
+    "lease-database": {
+        "type": "memfile",
+        "persist": true,
+        "lfc-interval": 3600
+    },
+
+    "interfaces-config": {
+      "interfaces": [
+        "vlan{{ networking['vlan_id'] }}"
+      ]
+    },
+
+    "subnet4": [
+      {
+         "pools": [
+            {
+              "pool": "{{ networking['dhcp_server']['ipv4_pool'] }}"
+            }
+          ],
+         "subnet": "{{ networking['dhcp_server']['ipv4_subnet'] }}"
+      }
+    ]
+  }
+}

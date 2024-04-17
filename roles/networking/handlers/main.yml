@@ -1,0 +1,15 @@
+---
+
+- name: Take VLAN interface down and bring up again
+  become: true
+  ansible.builtin.command: |
+    bash -c "ifdown vlan{{ networking['vlan_id'] }} && ifup vlan{{ networking['vlan_id'] }}"
+  changed_when: true
+  listen: restart vlan interface
+
+- name: Restart DHCP server
+  become: true
+  ansible.builtin.service:
+    name: kea-dhcp4-server
+    state: restarted
+  listen: restart dhcp server

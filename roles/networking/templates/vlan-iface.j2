@@ -1,0 +1,5 @@
+auto vlan{{ networking["vlan_id"] }}
+
+iface vlan{{ networking["vlan_id"] }} inet static
+  vlan-raw-device {{ networking["interface"]["alias"] }}
+  address {{ networking["interface"]["ipv4_address"] }}

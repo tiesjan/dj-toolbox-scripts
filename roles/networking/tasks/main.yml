@@ -1,0 +1,50 @@
+---
+
+- name: Ensure 802.1q kernel module is enabled
+  become: true
+  community.general.modprobe:
+    name: 8021q
+    state: present
+    persistent: present
+
+- name: Ensure `vlan` package is installed
+  become: true
+  ansible.builtin.apt:
+    name: vlan
+    state: present
+    update_cache: true
+    cache_valid_time: 86400
+
+- name: Upload VLAN interface configuration
+  become: true
+  ansible.builtin.template:
+    src: vlan-iface.j2
+    dest: /etc/network/interfaces.d/vlan
+    mode: 0644
+  notify: restart vlan interface
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Ensure DHCP server is installed
+  become: true
+  ansible.builtin.apt:
+    name: kea-dhcp4-server
+    state: present
+    update_cache: true
+    cache_valid_time: 86400
+
+- name: Configure DHCP server
+  become: true
+  ansible.builtin.template:
+    src: kea-dhcp4.conf.j2
+    dest: /etc/kea/kea-dhcp4.conf
+    mode: 0644
+  notify: restart dhcp server
+
+- name: Configure APT to use a reverse SSH tunnel proxy
+  become: true
+  ansible.builtin.template:
+    src: apt-proxy.j2
+    dest: /etc/apt/apt.conf.d/10proxy
+    mode: 0644

@@ -8,6 +8,7 @@ GPIO pins.
 - Recording mixes to FLAC files
 - SFTP access to recorded mixes
 - Graceful shutdown of Raspberry Pi
+- Networking using a VLAN
 
 ### Bootstrapping
 Bootstrapping is done by running the `bootstrap-rpi.bash` script against the
@@ -47,5 +48,17 @@ $ ssh raspberrypi.local
 This again assumes your computer supports multicast DNS and the Raspberry Pi
 can be reached on its default hostname.
 
+See also the Networking section below.
+
 ### SFTP access
 Recordings can be accessed by the created user over SFTP with port 2222.
+
+### Networking
+A VLAN interface is configured to allow the DJ toolbox and other DJ gear to be
+isolated from other VLANs. The DJ toolbox has a static IP address on the VLAN
+interface and runs a DHCP server to provide IP addresses to other devices.
+
+Assuming the VLAN does not have access to the Internet, APT is configured to
+use a SOCKS proxy over the SSH connection to install and upgrade packages. This
+requires the SSH client to have access to the Internet and connect with a
+reverse SSH tunnel.

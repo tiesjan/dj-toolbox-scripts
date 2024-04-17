@@ -14,5 +14,6 @@
 
   roles:
     - {role: firmware}
+    - {role: networking}
     - {role: sshd}
     - {role: recorder}
