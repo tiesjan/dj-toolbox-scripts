@@ -24,7 +24,7 @@ computer. It will guide you through these steps:
 Deploying is done using Ansible playbooks. Configuration can be changed in the
 `vars.yml` file. The playbook can be issued using the following command:
 
-```sh
+```
 $ ansible-playbook -i raspberrypi.local, -k deploy.yml
 ```
 
@@ -41,7 +41,7 @@ The `-k` option will prompt you for the password set during bootstrapping.
 ### SSH access
 Accessing the Raspberry Pi over your network is as simple as running:
 
-```sh
+```
 $ ssh raspberrypi.local
 ```
 
@@ -62,3 +62,47 @@ Assuming the VLAN does not have access to the Internet, APT is configured to
 use a SOCKS proxy over the SSH connection to install and upgrade packages. This
 requires the SSH client to have access to the Internet and connect with a
 reverse SSH tunnel.
+
+#### Configuring VLANs in Linux
+1. Install `vlan` package
+
+2. Define the following network interface for each VLAN:
+   ```
+   iface vlan<id> inet dhcp
+     vlan-raw-device <ethernet_interface>
+   ```
+   Where `<ethernet_interface>` is the physical ethernet interface to configure
+   VLAN with ID `<id>` for.
+
+3. Bring VLAN interface up:
+   ```
+   # ifup vlan<id>
+   ```
+   Where `<id>` is the VLAN ID.
+
+#### Configuring VLANs in Windows
+1. Enable Windows features:
+   - Hyper-V Services
+   - Hyper-V Module for Windows Powershell
+
+2. Create new VM Switch:
+   ```PowerShell
+   > New-VMSwitch -name VLAN-VMSwitch -NetAdapterName <ethernet_interface> -AllowManagementOS $true
+   ```
+   Where `<ethernet_interface>` is the physical ethernet interface to configure
+   VLANs for.
+
+3. Rename automatically created VM network adapter for untagged traffic:
+   ```PowerShell
+   > Rename-VMNetworkAdapter -ManagementOS -Name NoVLAN -NewName UntaggedVLAN
+   ```
+
+4. Add VM network adapters for tagged traffic:
+   ```PowerShell
+   > Add-VMNetworkAdapter -ManagementOS -SwitchName Vlan-VMSwitch -Name VLAN<id> -Passthru | Set-VMNetworkAdapterVlan -Access -VlanId <id>
+   ```
+   Where `<id>` is the VLAN ID.
+
+VM network adapters can be retrieved using `Get-NetAdapter` and removed using
+`Remove-VMNetworkAdapter`. VM switches can be retrieved using `Get-VMSwitch`
+and removed using `Remove-VMSwitch`.
