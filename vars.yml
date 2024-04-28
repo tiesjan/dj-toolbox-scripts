@@ -3,6 +3,10 @@
 sftp_root_path: "/sftp/"
 recordings_dir_path: "{{ sftp_root_path }}/Recordings"
 
+shutdown:
+  button_gpio_pin: 3
+  debounce_ms: 1333
+
 recorder:
   arecord_pid_file: "/tmp/arecord.pid"
   button_gpio_pin: 2

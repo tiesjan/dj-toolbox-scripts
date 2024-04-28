@@ -5,7 +5,7 @@
   ansible.builtin.lineinfile:
     path: /boot/firmware/config.txt
     regexp: '^dtoverlay=gpio-shutdown'
-    line: "dtoverlay=gpio-shutdown,gpio_pin=3,gpio_pull=up,debounce=1333"
+    line: "dtoverlay=gpio-shutdown,gpio_pin={{ shutdown['button_gpio_pin'] }},gpio_pull=up,debounce={{ shutdown['debounce_ms'] }}"
 
 - name: Ensure power LED is properly configured
   become: true
